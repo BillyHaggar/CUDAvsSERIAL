@@ -9,10 +9,18 @@
 
 ///Set the image and window dimensions
 // File path of the image to load;
-const char* IMAGE_PATH = "plymouth.jpg";
+const char* IMAGE_PATH = "plymouth2.jpg";
 // Set the width and height of the window here, must match the aspect ratio of the image to avoid distortion;
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 591;
+bool guassianBlur = false;
+
+//hard coded 3x3 guassianKernel;
+const int kSize = 3;
+float guassianKernel[kSize][kSize] = { { 1, 2, 1 },
+									   { 2, 4, 2 },
+									   { 1, 2, 1 } };
+
 
 /// function to change the image pixels
 // CPU version of the image modification code.
@@ -38,15 +46,64 @@ void changeImageCPU(unsigned char* inPixels, unsigned char* outPixels, int image
 		g = contrast * (g - 128.0f) + 128.0f + brightness;
 		b = contrast * (b - 128.0f) + 128.0f + brightness;
 
-		//TODO add guassian blur here!;
-		//------------------------------
-
 		// Write the new pixel values back out (constrained to the range 0-255).
 		outPixels[i + 0] = (unsigned char)(fmax(0, fmin(r, 255.0f)));
 		outPixels[i + 1] = (unsigned char)(fmax(0, fmin(g, 255.0f)));
 		outPixels[i + 2] = (unsigned char)(fmax(0, fmin(b, 255.0f)));
+
 	}
+		
+	printf("Brightness Or Contrast Adjustment Applied, ");
 }
+
+int get1dIndex(int width, int x, int y) {
+	return y * width * 4 + x * 4;
+}
+
+int offset = (kSize - 1) / 2;
+void guassianBlurCPU(unsigned char* inPixels, unsigned char* outPixels, int imageW, int imageH) {
+	
+	// Iterate through every pixel. Note that each pixel is four bytes (red, green, blue, alpha)
+	// so we add 4 to i each time.
+	for (int i = 0; i < imageW; i++) {
+		for (int j = 0; j < imageH; j++) {
+			// Extract the red, green and blue components.
+			
+			//give the position of the r,g,b pixel in the array
+			int r = get1dIndex(imageW, i, j) + 0;
+			int g = get1dIndex(imageW, i, j) + 1;
+			int b = get1dIndex(imageW, i, j) + 2;
+
+			float rsum = 0.0f;
+			float gsum = 0.0f;
+			float bsum = 0.0f;
+
+			//loop over guassianKernel
+			int t = 0;
+			for (int x = 0; x < kSize; x++) {
+				for (int y = 0; y < kSize; y++) {
+
+					//dont operate on values outside array size
+					if (((i + (x - offset)) < 0) || ((j + (y - offset)) < 0)) {
+						//do nothing
+					}
+					else {
+						rsum += (guassianKernel[x][y])  * inPixels[get1dIndex(imageW, x + (i - offset), y + (j - offset)) + 0];
+						gsum += (guassianKernel[x][y])  * inPixels[get1dIndex(imageW, x + (i - offset), y + (j - offset)) + 1];
+						bsum += (guassianKernel[x][y])  * inPixels[get1dIndex(imageW, x + (i - offset), y + (j - offset)) + 2];
+					}
+				}
+			}
+
+			outPixels[r] = (unsigned char)(fmax(0, fmin(rsum / 16.0, 255.0f)));
+			outPixels[g] = (unsigned char)(fmax(0, fmin(gsum / 16.0, 255.0f)));
+			outPixels[b] = (unsigned char)(fmax(0, fmin(bsum / 16.0, 255.0f)));
+		}
+	}
+	printf("Guassian Blur Applied, ");
+	guassianBlur = false;
+}
+
 
 ///initialise everyting ready to change the image, call the change of image and then 
 ///calculate how long to change, as well as unlock the texture.
@@ -63,7 +120,12 @@ void changeImage(SDL_Surface* surface, SDL_Texture* texture, float brightness, f
 	SDL_LockTexture(texture, NULL, (void**)(&pixelsTmp), &pitch);
 	clock_t tStart = clock();
 
-	changeImageCPU((unsigned char*)(surface->pixels), pixelsTmp, surface->w, surface->h, brightness, contrast);
+	if (!guassianBlur) {
+		changeImageCPU((unsigned char*)(surface->pixels), pixelsTmp, surface->w, surface->h, brightness, contrast);
+	}
+	else {
+		guassianBlurCPU((unsigned char*)(surface->pixels), pixelsTmp, surface->w, surface->h);
+	}
 
 	clock_t tEnd = clock();
 	float ms = 1000.0f * (tEnd - tStart) / CLOCKS_PER_SEC;
@@ -71,6 +133,7 @@ void changeImage(SDL_Surface* surface, SDL_Texture* texture, float brightness, f
 
 	SDL_UnlockTexture(texture);
 }
+
 
 ////
 // Program entry point.
@@ -114,6 +177,7 @@ int main(int argc, int** argv)
 			else if (event.type == SDL_KEYDOWN) {
 				// A key was pressed, maybe adjust parameters.
 				bool parametersChanged = true;
+				
 				if (event.key.keysym.sym == SDLK_LEFT) {
 					contrast -= 0.1f;
 				}
@@ -125,6 +189,9 @@ int main(int argc, int** argv)
 				}
 				else if (event.key.keysym.sym == SDLK_UP) {
 					brightness += 10.0f;
+				}
+				else if (event.key.keysym.sym == SDLK_1) {
+					guassianBlur = true;
 				}
 				else {
 					parametersChanged = false;
