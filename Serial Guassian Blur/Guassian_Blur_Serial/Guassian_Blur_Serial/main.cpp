@@ -7,7 +7,7 @@
 #include <math.h>
 #include <time.h>
 // Enter value here to create the size of the kernel (width and height) MUST BE AN ODD VALUE
-#define kSize 5 // Basically the width of the blur in pixels
+#define kSize 11 // Basically the width of the blur in pixels
 #define stdv 10.0 // strength of the blur
 
 ///Set the image and window dimensions
