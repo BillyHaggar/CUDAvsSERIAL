@@ -317,7 +317,7 @@ int main(int argc, int** argv)
 		}
 	}
 
-	float difference = ((imageSize / correctPixels) * 100);
+	float difference = ((correctPixels / imageSize) * 100);
 	printf("CPU vs GPU Convolution Simularity %f Percent \n\n", difference);
 
 	// Allocate a texture that will be the actual image drawn to the screen.
