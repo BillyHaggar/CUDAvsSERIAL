@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Users\bhaggar\Downloads\123\Serial Guassian Blur\Guassian_Blur_Serial\Guassian_Blur_Serial\main.cpp(50,83): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\bhaggar\Downloads\123\Serial Guassian Blur\Guassian_Blur_Serial\Guassian_Blur_Serial\main.cpp(56,27): warning C4244:  '/=': conversion from 'double' to 'float', possible loss of data
+  Guassian_Blur_Serial.vcxproj -> C:\Users\bhaggar\Downloads\123\Serial Guassian Blur\Guassian_Blur_Serial\x64\Debug\Guassian_Blur_Serial.exe
