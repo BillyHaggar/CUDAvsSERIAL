@@ -1,0 +1,5 @@
+﻿  main.cpp
+C:\Users\bhaggar\Downloads\Final 1.1\Final\Final_Projects\GuassianSerial\Guassian_Blur_Serial\Guassian_Blur_Serial\main.cpp(51,83): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\bhaggar\Downloads\Final 1.1\Final\Final_Projects\GuassianSerial\Guassian_Blur_Serial\Guassian_Blur_Serial\main.cpp(57,27): warning C4244:  '/=': conversion from 'double' to 'float', possible loss of data
+  LINK : C:\Users\bhaggar\Downloads\Final 1.1\Final\Final_Projects\GuassianSerial\Guassian_Blur_Serial\x64\Debug\Guassian_Blur_Serial.exe not found or not built by the last incremental link; performing full link
+  Guassian_Blur_Serial.vcxproj -> C:\Users\bhaggar\Downloads\Final 1.1\Final\Final_Projects\GuassianSerial\Guassian_Blur_Serial\x64\Debug\Guassian_Blur_Serial.exe
